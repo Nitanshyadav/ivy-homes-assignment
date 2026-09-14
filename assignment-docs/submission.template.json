@@ -1,0 +1,50 @@
+{
+  "api_key": "IVY26-XXXXXXXXXXXX",
+  "candidate": {
+    "name": "",
+    "email": "",
+    "repo_url": "",
+    "demo_url": ""
+  },
+  "answers": {
+    "total_listing_records": 0,
+    "unique_properties": 0,
+    "active_listings": 0,
+    "corrupt_listing_ids": [],
+    "total_monthly_rent": 0,
+    "avg_price_per_sqft_2bhk": 0.0,
+    "costliest_project": { "project_id": "", "price_max_inr": 0 },
+    "listings_last_7_days": 0,
+    "fake_listing_ids": [],
+    "projects_with_wrong_listing_count": 0
+  },
+  "findings": [
+    {
+      "endpoint": "",
+      "category": "",
+      "documented": "",
+      "actual": "",
+      "how_found": "",
+      "impact": "",
+      "evidence": []
+    }
+  ]
+}
+
+{
+  "endpoint": "*",
+  "category": "timestamps",
+  "documented": "Timestamps use UTC with a 'Z' suffix everywhere in the API.",
+  "actual": "Timestamps use an explicit +05:30 offset (IST) instead of Z.",
+  "how_found": "Called /health and observed the server_time format.",
+  "impact": "Frontend parsing might offset dates incorrectly if expecting pure UTC.",
+  "evidence": []
+}
+
+
+
+
+
+
+
+

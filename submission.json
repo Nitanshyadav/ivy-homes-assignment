@@ -1,0 +1,149 @@
+{
+  "api_key": "IVY26-018F63A1553F",
+  "candidate": {
+    "name": "Nitansh Yadav",
+    "email": "nitansh.20236086@mnnit.ac.in",
+    "repo_url": "https://github.com/Nitanshyadav/ivy-homes-assignment",
+    "demo_url": "https://ivy-homes-assignment-rho.vercel.app/login"
+  },
+  "answers": {
+    "total_listing_records": 5100,
+    "unique_properties": 5090,
+    "active_listings": 4017,
+    "corrupt_listing_ids": [
+      "100-5000050",
+      "100-5000114",
+      "100-5000339",
+      "100-5001388",
+      "100-5001973",
+      "DWE-5001781",
+      "DWE-5001929",
+      "DWE-5001932",
+      "DWE-5002147",
+      "DWE-5002614",
+      "DWE-5002890",
+      "DWE-5003581",
+      "DWE-5003926",
+      "MAG-5000193",
+      "MAG-5000775",
+      "MAG-5001549",
+      "MAG-5001852",
+      "MAG-5002438",
+      "MAG-5003706",
+      "SQU-5001473",
+      "SQU-5001700",
+      "SQU-5001891",
+      "SQU-5002434",
+      "SQU-5002700",
+      "SQU-5003006",
+      "SQU-5003244",
+      "SQU-5003458",
+      "SQU-5003909",
+      "SQU-5003951",
+      "ZER-5000113",
+      "ZER-5001536",
+      "ZER-5002788",
+      "ZER-5004007"
+    ],
+    "fake_listing_ids": [
+      "100-5002758",
+      "100-5003364",
+      "100-5003914",
+      "100-5004028",
+      "DWE-5000518",
+      "DWE-5000622",
+      "DWE-5000893",
+      "DWE-5001600",
+      "DWE-5002309",
+      "DWE-5002623",
+      "DWE-5003025",
+      "DWE-5003030",
+      "MAG-5001874",
+      "MAG-5002204",
+      "MAG-5002355",
+      "MAG-5002371",
+      "MAG-5003431",
+      "SQU-5000538",
+      "SQU-5002463",
+      "ZER-5001089",
+      "ZER-5001249",
+      "ZER-5003818"
+    ],
+    "total_monthly_rent": 7523000,
+    "avg_price_per_sqft_2bhk": 62609.24,
+    "costliest_project": {
+      "project_id": "P50016",
+      "price_max_inr": 124400000
+    },
+    "listings_last_7_days": 167,
+    "projects_with_wrong_listing_count": 446,
+    "dataset_audit_ref": "IVY-AUDIT-D301DB3F"
+  },
+  "findings": [
+    {
+      "endpoint": "*",
+      "category": "auth",
+      "documented": "API key should be appended as a query parameter (?api_key=...)",
+      "actual": "API key must be sent in the X-API-Key request header.",
+      "how_found": "Made a GET request with query parameter and received 401 detail error.",
+      "impact": "Authentication fails completely.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/auth/login",
+      "category": "auth",
+      "documented": "Returns a 'token', expires in 86400 (24h), no refresh flow.",
+      "actual": "Returns 'access_token', expires in 900 (15m), and includes a refresh_token flow.",
+      "how_found": "Inspected the successful login response body.",
+      "impact": "Users will be logged out after 15 minutes unless refresh flow is implemented.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "pagination",
+      "documented": "Uses 'page' and 'page_size' parameters.",
+      "actual": "Uses 'limit' and 'offset', and returns a 'has_more' boolean instead of exact pagination metadata.",
+      "how_found": "Inspected the response wrapper of a valid API call.",
+      "impact": "Standard page-based routing will fail to fetch subsequent data.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "completeness",
+      "documented": "Returns active sale listings. Inactive listings are excluded server side.",
+      "actual": "Returns all listings. Many records have 'is_live: false'.",
+      "how_found": "Found multiple records in the results with is_live set to false.",
+      "impact": "Frontend will display unavailable properties unless filtered client-side.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/health",
+      "category": "timestamps",
+      "documented": "Timestamps use UTC with a 'Z' suffix.",
+      "actual": "Timestamps use an explicit +05:30 offset (IST) or are naive datetime strings.",
+      "how_found": "Checked /health server_time and /v1/listings posted_at fields.",
+      "impact": "Dates parsed in the UI will be off by 5.5 hours.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/v1/projects",
+      "category": "units",
+      "documented": "price_min and price_max are in rupees.",
+      "actual": "price_min and price_max are in Crores.",
+      "how_found": "Found the highest price_max to be 12.44, which implies Crores, not Rupees.",
+      "impact": "UI will display prices that look drastically low to users.",
+      "evidence": [
+        "P50016"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "duplicates",
+      "documented": "Each listing corresponds to exactly one physical property.",
+      "actual": "Multiple listings describe the exact same physical property (same building, floor, carpet area).",
+      "how_found": "Grouped listings by physical attributes and found fewer unique properties than total listings.",
+      "impact": "Analytics and counts will over-represent actual housing supply.",
+      "evidence": []
+    }
+  ]
+}

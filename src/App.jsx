@@ -12,7 +12,7 @@ import Listings from "./Listings";
 import Projects from "./Projects";
 
 function Login({ setLoggedIn }) {
-  const [email, setEmail] = useState("demo1@ivy.homes");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
